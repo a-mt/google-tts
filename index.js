@@ -30,7 +30,11 @@ const requestHandler = (req, res) => {
       res.statusCode = 400;
       res.end('Missing parameter q');
   }
-  googleTTS(decodeURIComponent(_GET.q), _GET.tl || "en", _GET.ttsspeed || 1)   // speed normal = 1 (default), slow = 0.24
+  var speed = parseFloat(_GET.ttsspeed);
+  if(isNaN(speed)) {
+      speed = 1;
+  }
+  googleTTS(decodeURIComponent(_GET.q), _GET.tl || "en", speed)   // speed normal = 1 (default), slow = 0.24
     .then(function (url) {
       res.end(url);
     })
