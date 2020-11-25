@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "google-tts-api": "0.0.4"
+    "google-tts-api": "0.0.5"
   }
 }
