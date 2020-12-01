@@ -1,6 +1,5 @@
 const http      = require('http'),
       https     = require('https'),
-      googleTTS = require('google-tts-api'),
       urlParse  = require('url').parse;
 
 function params(href) {
@@ -37,43 +36,40 @@ const requestHandler = (req, res) => {
   }
 
   // Retrieve mp3's url
-  googleTTS(decodeURIComponent(_GET.q), _GET.tl || "en", speed)   // speed normal = 1 (default), slow = 0.24
-    .then(function (url) {
+  // speed normal = 1 (default), slow = 0.24
+  let url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${_GET.tl || "en"}&client=tw-ob&q=${_GET.q}&tk=${Math.floor(Math.random() * 1000000)}&ttsspeed=${speed}`;
 
-      if(typeof _GET.download != "undefined") {
-        var info = urlParse(url);
+  if(typeof _GET.download != "undefined") {
+    var info = urlParse(url);
 
-        https.get({
-          host: info.host,
-          path: info.path,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:58.0) Gecko/20100101 Firefox/58.0'
-          }
-        }, function (proxyRes) {
-          ['date', 'expires', 'content-type', 'content-length'].forEach(k => {
-            res.setHeader(k, proxyRes.headers[k]);
-          });
-          proxyRes.on('data', function (chunk) {
-              res.write(chunk, 'binary');
-          });
-          proxyRes.on('end', function () {
-              res.end();
-          });
-        });
-      } else {
-        res.end(url);
+    var request = https.get({
+      host: info.host,
+      path: info.path,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:58.0) Gecko/20100101 Firefox/58.0'
       }
-    })
-    .catch(function (err) {
-      if(err instanceof RangeError || err instanceof TypeError) {
-        res.statusCode = 400;
-        res.end(err.message);
-      } else {
-        console.error(err.stack);
-        res.statusCode = 500;
-        res.end(err.message);
-      }
+
+    }, function (proxyRes) {
+      ['date', 'expires', 'content-type', 'content-length'].forEach(k => {
+        res.setHeader(k, proxyRes.headers[k]);
+      });
+      proxyRes.on('data', function (chunk) {
+          res.write(chunk, 'binary');
+      });
+      proxyRes.on('end', function () {
+          res.end();
+      });
     });
+
+    request.on('error', function(err) {
+        console.error(err.reason);
+        res.statusCode = 500;
+        res.end(err.reason);
+    });
+
+  } else {
+    res.end(url);
+  }
 };
 
 // Start server
