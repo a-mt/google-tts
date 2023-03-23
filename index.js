@@ -51,7 +51,11 @@ const requestHandler = (req, res) => {
 
     }, function (proxyRes) {
       ['date', 'expires', 'content-type', 'content-length'].forEach(k => {
-        res.setHeader(k, proxyRes.headers[k]);
+        let value = proxyRes.headers[k];
+
+        if (typeof value !== 'undefined') {
+          res.setHeader(k, value);
+        }
       });
       proxyRes.on('data', function (chunk) {
           res.write(chunk, 'binary');
