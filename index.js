@@ -29,6 +29,7 @@ const requestHandler = (req, res) => {
   if(!_GET.q) {
       res.statusCode = 400;
       res.end('Missing parameter q');
+      return;
   }
   var speed = parseFloat(_GET.ttsspeed);
   if(isNaN(speed)) {
@@ -69,10 +70,12 @@ const requestHandler = (req, res) => {
         console.error(err.reason);
         res.statusCode = 500;
         res.end(err.reason);
+        return;
     });
 
   } else {
     res.end(url);
+    return;
   }
 };
 
